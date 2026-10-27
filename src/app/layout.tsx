@@ -3,7 +3,6 @@ import { Barlow_Condensed, Be_Vietnam_Pro } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingContact } from "@/components/FloatingContact";
-import { ScrollReveal } from "@/components/ScrollReveal";
 import "./globals.css";
 
 const body = Be_Vietnam_Pro({
@@ -32,7 +31,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main className="flex-1">{children}</main>
         <Footer />
         <FloatingContact />
-        <ScrollReveal />
       </body>
     </html>
   );

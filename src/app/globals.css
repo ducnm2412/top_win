@@ -101,10 +101,19 @@ body {
   mask-image: radial-gradient(ellipse at center, #000 40%, transparent 85%);
 }
 
-/* hiện dần khi cuộn tới (ScrollReveal) */
-.reveal { opacity: 0; translate: 0 36px; transition: opacity 0.8s ease, translate 0.8s cubic-bezier(.2,.7,.2,1); }
-.reveal.is-visible { opacity: 1; translate: none; }
-@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; translate: none; } }
+/* hiện dần khi cuộn tới — thuần CSS (không sửa DOM nên không lệch hydration).
+   Trình duyệt chưa hỗ trợ scroll-driven animation thì nội dung hiện bình thường. */
+@keyframes reveal-in { from { opacity: 0; translate: 0 36px; } to { opacity: 1; translate: none; } }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    main section:not([data-noreveal]):not(#quy-trinh) > div:not([class*="absolute"]) > *,
+    main section:not([data-noreveal]):not(#quy-trinh) > div:not([class*="absolute"]) > [class*="grid"] > * {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
 
 @keyframes road-dash { to { stroke-dashoffset: -40; } }
 .road-dash { animation: road-dash 1.6s linear infinite; }

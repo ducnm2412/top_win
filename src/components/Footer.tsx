@@ -5,7 +5,7 @@ import { CONTACT, NAV } from "@/lib/site";
 export function Footer() {
   return (
     <footer className="bg-navy-950 text-steel-300">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-6 gap-y-8 px-4 py-10 sm:px-6 sm:py-14 md:grid-cols-2 lg:grid-cols-[1.4fr_0.8fr_1fr_1.3fr]">
+      <div className="mx-auto grid max-w-7xl grid-cols-[1.5fr_1fr] gap-x-6 gap-y-8 px-4 py-10 sm:px-6 sm:py-14 md:grid-cols-2 lg:grid-cols-[1.4fr_0.8fr_1fr_1.3fr]">
         <div className="col-span-2 lg:col-span-1">
           <Image src="/images/logo.webp" alt="Top Win" width={379} height={240} className="h-12 w-auto sm:h-16" />
           <p className="mt-4 hidden max-w-md text-sm leading-relaxed sm:block">
@@ -18,7 +18,7 @@ export function Footer() {
             MST: {CONTACT.taxId} · Thành lập {CONTACT.founded}
           </p>
         </div>
-        <div>
+        <div className="order-3 md:order-none">
           <h3 className="font-display text-sm font-bold uppercase tracking-widest text-white">Liên kết</h3>
           <ul className="mt-3 space-y-1.5 text-sm">
             {NAV.map((n) => (
@@ -30,7 +30,7 @@ export function Footer() {
             ))}
           </ul>
         </div>
-        <div>
+        <div className="order-2 md:order-none">
           <h3 className="font-display text-sm font-bold uppercase tracking-widest text-white">Liên hệ</h3>
           <ul className="mt-3 space-y-1.5 text-sm">
             <li className="hidden sm:list-item">{CONTACT.address}</li>
@@ -40,10 +40,8 @@ export function Footer() {
               </a>
             </li>
             <li>
-              {/* nếu thiếu chỗ thì xuống dòng tại dấu @, không cắt giữa chữ */}
-              <a href={`mailto:${CONTACT.email}`} className="hover:text-white">
-                {CONTACT.email.split("@")[0]}
-                <wbr />@{CONTACT.email.split("@")[1]}
+              <a href={`mailto:${CONTACT.email}`} className="whitespace-nowrap hover:text-white">
+                {CONTACT.email}
               </a>
             </li>
             <li>
@@ -53,7 +51,7 @@ export function Footer() {
             </li>
           </ul>
         </div>
-        <div className="col-span-2 lg:col-span-1">
+        <div className="order-4 col-span-2 md:order-none lg:col-span-1">
           <h3 className="font-display text-sm font-bold uppercase tracking-widest text-white">Bản đồ</h3>
           <p className="mt-3 text-sm sm:hidden">{CONTACT.address}</p>
           <div className="mt-3 h-36 sm:h-44 overflow-hidden rounded-md ring-1 ring-white/10">
