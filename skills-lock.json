@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "skills": {
+    "ai-image-generation": {
+      "source": "prime-skills/runcomfy-agent-skills",
+      "sourceType": "github",
+      "skillPath": "ai-image-generation/SKILL.md",
+      "computedHash": "06f41b40b32a080bc38536156b80a7d4a3175e1b1eeece55fc125e54bee467f3"
+    },
+    "image-to-ui": {
+      "source": "uizze/uizze",
+      "sourceType": "github",
+      "skillPath": "skills/image-to-ui/SKILL.md",
+      "computedHash": "7311fdd2f20ce477d757e768aed341c681e2eede34df2dd947adf00816d436a0"
+    },
+    "ui-taste": {
+      "source": "uizze.sh",
+      "sourceType": "well-known",
+      "computedHash": "b9d9f1f68d2db3316639cf77ad74dae34a2ed2ffb90845e5de6c592095c78a3d"
+    }
+  }
+}
