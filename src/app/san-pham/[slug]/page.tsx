@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,7 +18,16 @@ export async function generateMetadata({ params }: PageProps<"/san-pham/[slug]">
   return g ? { title: `${g.title} — Top Win`, description: g.intro } : {};
 }
 
-export default async function ProductGroupPage({ params }: PageProps<"/san-pham/[slug]">) {
+// partialPrefetching đang bật: đọc params bên trong <Suspense> để Next.js dựng sẵn khung trang
+export default function ProductGroupPage({ params }: PageProps<"/san-pham/[slug]">) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-navy-950" />}>
+      <ProductGroupContent params={params} />
+    </Suspense>
+  );
+}
+
+async function ProductGroupContent({ params }: Pick<PageProps<"/san-pham/[slug]">, "params">) {
   const { slug } = await params;
   const g = PRODUCT_GROUPS.find((x) => x.slug === slug);
   if (!g) notFound();

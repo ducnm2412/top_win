@@ -54,19 +54,21 @@ const STEPS: { title: string; desc: string; points: string[]; img: Img }[] = [
  * Một con đường liền mạch uốn lượn rộng sang hai bên, đi qua tâm từng ô ảnh.
  * Tọa độ đo từ DOM thật nên luôn khớp khi đổi kích thước màn hình.
  */
-function buildRoad(pts: { x: number; y: number }[]) {
+function buildRoad(pts: { x: number; y: number }[], w: number) {
   if (pts.length < 2) return "";
-  // đường chữ S trơn: vào và ra mỗi ô theo phương dọc nên không có góc gãy
-  const first = pts[0];
-  let d = `M ${first.x} ${first.y}`; // bắt đầu ngay dưới ô đầu tiên, không đè lên tiêu đề
+  // đường rắn bò: mỗi ô ảnh nằm trên một đoạn ngang, quay đầu chữ U ra sát mép hai bên
+  let d = `M ${pts[0].x} ${pts[0].y}`;
   for (let i = 0; i < pts.length - 1; i++) {
     const a = pts[i];
     const b = pts[i + 1];
-    const k = (b.y - a.y) * 0.6;
-    d += ` C ${a.x} ${a.y + k}, ${b.x} ${b.y - k}, ${b.x} ${b.y}`;
+    const s = i % 2 === 0 ? 1 : -1; // quay đầu bên phải hay bên trái
+    const r = (b.y - a.y) / 2; // quay đầu bằng nửa vòng tròn trọn vẹn cho khúc cua mềm
+    const ex = s > 0 ? w - r - 60 : r + 60;
+    const sw = s > 0 ? 1 : 0;
+    d += ` L ${ex} ${a.y} A ${r} ${r} 0 0 ${sw} ${ex + s * r} ${a.y + r} L ${ex + s * r} ${b.y - r} A ${r} ${r} 0 0 ${sw} ${ex} ${b.y}`;
   }
-  // kết thúc ngay tại ô cuối để không đè lên nội dung bên dưới
-  return d;
+  const last = pts[pts.length - 1];
+  return d + ` L ${last.x} ${last.y}`;
 }
 
 export function ProcessJourney() {
@@ -143,7 +145,7 @@ export function ProcessJourney() {
         const r = t!.getBoundingClientRect();
         return { x: r.left - box.left + r.width / 2, y: r.top - box.top + r.height / 2 };
       });
-      setRoad({ d: buildRoad(pts), w: box.width, h: box.height });
+      setRoad({ d: buildRoad(pts, box.width), w: box.width, h: box.height });
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -161,9 +163,9 @@ export function ProcessJourney() {
           viewBox={`0 0 ${road.w} ${road.h}`}
           aria-hidden
         >
-          <path d={road.d} fill="none" stroke="#2b3a4e" strokeWidth="72" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={road.d} fill="none" stroke="#17305a" strokeWidth="62" strokeLinecap="round" strokeLinejoin="round" />
-          <path ref={pathRef} d={road.d} fill="none" stroke="#f26b1d" strokeWidth="4" strokeDasharray="22 18" strokeLinecap="round" />
+          <path d={road.d} fill="none" stroke="#2b3a4e" strokeWidth="120" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={road.d} fill="none" stroke="#17305a" strokeWidth="106" strokeLinecap="round" strokeLinejoin="round" />
+          <path ref={pathRef} d={road.d} fill="none" stroke="#f26b1d" strokeWidth="5" strokeDasharray="30 22" strokeLinecap="round" />
         </svg>
       )}
       {road.d && (
@@ -173,7 +175,7 @@ export function ProcessJourney() {
           aria-hidden
         >
           {/* xe tải nhìn từ trên xuống, đầu xe hướng sang phải */}
-          <svg width="74" height="38" viewBox="0 0 74 38">
+          <svg width="104" height="53" viewBox="0 0 74 38">
             <rect x="1" y="3" width="48" height="32" rx="3" fill="#eef1f5" stroke="#0a1628" strokeWidth="2" />
             <rect x="6" y="9" width="38" height="20" rx="1" fill="none" stroke="#b5c0ce" strokeWidth="1.5" />
             <text x="25" y="23" textAnchor="middle" fontSize="9" fontWeight="700" fill="#f26b1d" fontFamily="Arial">TOP WIN</text>
@@ -194,16 +196,16 @@ export function ProcessJourney() {
             }}
             className="step-reveal"
           >
-            <div className="relative z-10 grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
+            <div className="relative z-10 grid items-center gap-8 lg:grid-cols-2 lg:items-stretch lg:gap-6">
               {/* ô ảnh isometric */}
-              <div className={`flex justify-center ${right ? "lg:order-2" : ""}`}>
+              <div className={`flex justify-center ${right ? "lg:order-2 lg:justify-start" : "lg:justify-end"}`}>
                 <div
                   ref={(el) => {
                     tiles.current[i] = el;
                   }}
-                  className="iso-tile relative w-full max-w-md lg:max-w-[340px]"
+                  className="iso-tile relative w-full max-w-md lg:max-w-[340px] lg:min-h-48"
                 >
-                  <Photo img={s.img} sizes="(min-width: 1024px) 340px, 100vw" className="aspect-[4/3] lg:aspect-square" />
+                  <Photo img={s.img} sizes="(min-width: 1024px) 340px, 100vw" className="aspect-[4/3] lg:absolute! lg:inset-0 lg:aspect-auto lg:h-full" />
                   <span className="absolute left-3 top-3 grid h-10 w-10 place-items-center bg-accent font-display text-lg font-bold text-white">
                     {String(i + 1).padStart(2, "0")}
                   </span>
@@ -212,11 +214,11 @@ export function ProcessJourney() {
 
               {/* nội dung — nền trắng mờ để chữ luôn đọc rõ khi đường chạy phía sau */}
               <div className={right ? "lg:flex lg:justify-end" : ""}>
-                <div className={`relative lg:max-w-lg lg:rounded-lg lg:bg-navy-950/70 lg:p-6 lg:shadow-lg lg:ring-1 lg:ring-white/10 lg:backdrop-blur-sm ${right ? "lg:text-right" : ""}`}>
-                  <p className="font-display text-sm font-bold uppercase tracking-[0.25em] text-accent">Bước {i + 1}</p>
-                  <h3 className="mt-2 text-2xl font-bold text-white">{s.title}</h3>
-                  <p className="mt-3 leading-relaxed text-steel-300">{s.desc}</p>
-                  <ul className={`mt-4 flex flex-wrap gap-2 ${right ? "lg:justify-end" : ""}`}>
+                <div className={`relative lg:max-w-lg lg:rounded-lg lg:bg-navy-950/70 lg:p-6 lg:shadow-lg lg:ring-1 lg:ring-white/10 lg:backdrop-blur-sm text-center ${right ? "lg:text-right" : "lg:text-left"}`}>
+                  <p className="hidden font-display text-sm font-bold uppercase tracking-[0.25em] text-accent lg:block">Bước {i + 1}</p>
+                  <h3 className="text-xl lg:mt-2 lg:text-2xl font-bold text-white">{s.title}</h3>
+                  <p className="mt-3 hidden leading-relaxed text-steel-300 lg:block">{s.desc}</p>
+                  <ul className={`mt-4 hidden flex-wrap gap-2 lg:flex ${right ? "lg:justify-end" : ""}`}>
                     {s.points.map((p) => (
                       <li key={p} className="bg-white/10 px-3 py-1 text-xs font-semibold text-steel-200">
                         {p}
